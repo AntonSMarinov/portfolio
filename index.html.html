@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anton Marinov — Senior SOC Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --neon:#00ff9d;
+  --cyan:#00cfff;
+  --red:#ff3355;
+  --amber:#ffb800;
+  --bg:#060a0a;
+  --bg2:#0d1414;
+  --bg3:#111c1c;
+  --border:#1a3333;
+  --border2:#0f2222;
+  --text:#b8d4d4;
+  --text-dim:#4a7070;
+  --mono:'Share Tech Mono',monospace;
+  --sans:'Exo 2',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;overflow-x:hidden;line-height:1.7}
+
+#matrix-canvas{position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.035;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:999}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.1rem 3rem;display:flex;justify-content:space-between;align-items:center;background:rgba(6,10,10,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);color:var(--neon);font-size:0.95rem;letter-spacing:0.15em}
+.nav-logo span{color:var(--text-dim)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:0.72rem;color:var(--text-dim);text-decoration:none;letter-spacing:0.12em;transition:color 0.2s;text-transform:uppercase}
+.nav-links a:hover{color:var(--neon)}
+.nav-status{display:flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.68rem;color:var(--neon)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--neon);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 5px var(--neon)}50%{opacity:0.3;box-shadow:none}}
+
+/* LAYOUT */
+section{position:relative;z-index:1;max-width:1020px;margin:0 auto;padding:6rem 2.5rem}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:8rem}
+.hero-eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--text-dim);letter-spacing:0.3em;margin-bottom:1.8rem;text-transform:uppercase}
+.hero-eyebrow em{color:var(--neon);font-style:normal}
+h1.hero-name{font-family:var(--sans);font-size:clamp(3.5rem,9vw,7rem);font-weight:700;color:#fff;line-height:1;letter-spacing:-0.03em;position:relative;display:inline-block}
+.glitch{position:relative}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%}
+.glitch::before{color:var(--cyan);animation:g1 5s infinite;clip-path:polygon(0 15%,100% 15%,100% 35%,0 35%)}
+.glitch::after{color:var(--red);animation:g2 5s infinite;clip-path:polygon(0 55%,100% 55%,100% 75%,0 75%)}
+@keyframes g1{0%,88%,100%{transform:none;opacity:0}90%{transform:translateX(-5px);opacity:0.75}93%{transform:translateX(5px);opacity:0.75}96%{transform:none;opacity:0}}
+@keyframes g2{0%,85%,100%{transform:none;opacity:0}87%{transform:translateX(5px);opacity:0.75}91%{transform:translateX(-5px);opacity:0.75}94%{transform:none;opacity:0}}
+.hero-role{font-family:var(--mono);font-size:clamp(0.85rem,1.8vw,1.05rem);color:var(--neon);margin-top:1.2rem;letter-spacing:0.15em}
+.hero-sub{font-size:1rem;color:var(--text-dim);max-width:520px;margin-top:1.4rem;line-height:1.85}
+.hero-sub strong{color:var(--text);font-weight:400}
+
+/* TERMINAL */
+.terminal{margin-top:2.8rem;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:1.2rem 1.5rem;max-width:500px;font-family:var(--mono);font-size:0.8rem}
+.term-hdr{display:flex;gap:6px;margin-bottom:1rem}
+.d{width:10px;height:10px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+.term-line{color:var(--text-dim);margin-top:4px}
+.term-line .p{color:var(--neon)}.term-line .c{color:#fff}
+#termOut{margin-top:6px;display:none}
+.cursor::after{content:'█';animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cta-row{display:flex;gap:1rem;margin-top:2.8rem;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:0.75rem;letter-spacing:0.1em;padding:0.65rem 1.5rem;border-radius:3px;text-decoration:none;transition:all 0.2s;display:inline-block}
+.btn-p{border:1px solid var(--neon);color:var(--neon);background:transparent}.btn-p:hover{background:var(--neon);color:#000}
+.btn-g{border:1px solid var(--border);color:var(--text-dim);background:transparent}.btn-g:hover{border-color:var(--text-dim);color:var(--text)}
+
+/* SECTION HEADER */
+.sec-label{font-family:var(--mono);font-size:0.65rem;color:var(--neon);letter-spacing:0.35em;margin-bottom:0.5rem;text-transform:uppercase}
+.sec-title{font-size:1.9rem;font-weight:700;color:#fff;margin-bottom:0.6rem}
+.sec-div{width:36px;height:1px;background:var(--neon);margin-bottom:2.8rem}
+
+/* ABOUT */
+#about{border-top:1px solid var(--border)}
+.about-grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:3.5rem;align-items:start}
+.about-text p{color:var(--text);line-height:1.95;margin-bottom:1.1rem;font-size:0.97rem}
+.about-text p strong{color:var(--neon);font-weight:600}
+.about-cards{display:flex;flex-direction:column;gap:0.85rem}
+.acard{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1rem 1.3rem;transition:border-color 0.25s}
+.acard:hover{border-color:var(--neon)}
+.acard-label{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);letter-spacing:0.22em;margin-bottom:0.3rem;text-transform:uppercase}
+.acard-val{font-size:0.92rem;color:#fff;font-weight:400}
+.acard-val.online{color:var(--neon)}
+
+/* SKILLS */
+#skills{border-top:1px solid var(--border)}
+.skills-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem}
+.scat{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:1.4rem}
+.scat h3{font-family:var(--mono);font-size:0.65rem;color:var(--cyan);letter-spacing:0.22em;margin-bottom:1.1rem;text-transform:uppercase}
+.tags{display:flex;flex-wrap:wrap;gap:0.45rem}
+.tag{font-family:var(--mono);font-size:0.68rem;padding:0.28rem 0.7rem;border:1px solid var(--border);border-radius:2px;color:var(--text);transition:all 0.18s;cursor:default}
+.tag:hover{border-color:var(--neon);color:var(--neon)}
+.tag.h{border-color:rgba(0,255,157,0.25);background:rgba(0,255,157,0.05);color:var(--neon)}
+
+/* EXPERIENCE */
+#experience{border-top:1px solid var(--border)}
+.timeline{padding-left:2rem;position:relative}
+.timeline::before{content:'';position:absolute;left:0;top:8px;bottom:0;width:1px;background:linear-gradient(to bottom,var(--neon) 0%,var(--border) 60%,transparent 100%)}
+.tli{position:relative;margin-bottom:2.8rem}
+.tli:last-child{margin-bottom:0}
+.tl-dot{position:absolute;left:-2rem;top:6px;width:10px;height:10px;border-radius:50%;border:2px solid var(--neon);background:var(--bg);transform:translateX(-4.5px)}
+.tli.active .tl-dot{background:var(--neon);box-shadow:0 0 10px var(--neon)}
+.tl-period{font-family:var(--mono);font-size:0.62rem;color:var(--text-dim);letter-spacing:0.15em;margin-bottom:0.3rem;text-transform:uppercase}
+.tl-role{font-size:1.05rem;font-weight:600;color:#fff}
+.tl-company{font-family:var(--mono);font-size:0.75rem;color:var(--neon);margin-bottom:0.7rem;margin-top:0.1rem}
+.tl-desc{color:var(--text);font-size:0.88rem;line-height:1.85}
+.tl-tags{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.75rem}
+.tl-tag{font-family:var(--mono);font-size:0.6rem;padding:0.18rem 0.5rem;background:rgba(0,207,255,0.06);border:1px solid rgba(0,207,255,0.18);color:var(--cyan);border-radius:2px}
+
+/* CERTIFICATIONS */
+#certifications{border-top:1px solid var(--border)}
+.cert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.cert-card{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:1.1rem 1.2rem;transition:border-color 0.2s,transform 0.2s;position:relative;overflow:hidden}
+.cert-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--border);transition:background 0.2s}
+.cert-card:hover{border-color:rgba(0,255,157,0.35);transform:translateY(-2px)}
+.cert-card:hover::before{background:var(--neon)}
+.cert-card.featured::before{background:var(--neon)}
+.cert-card.featured{border-color:rgba(0,255,157,0.2)}
+.cert-issuer{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);letter-spacing:0.18em;margin-bottom:0.4rem;text-transform:uppercase}
+.cert-name{font-size:0.82rem;color:#fff;font-weight:600;line-height:1.4;margin-bottom:0.5rem}
+.cert-date{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim)}
+.cert-badge{display:inline-block;font-family:var(--mono);font-size:0.55rem;padding:0.15rem 0.45rem;border-radius:2px;margin-top:0.4rem;letter-spacing:0.1em}
+.badge-eccouncil{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--amber)}
+.badge-offsec{background:rgba(255,51,85,0.08);border:1px solid rgba(255,51,85,0.2);color:var(--red)}
+.badge-dhs{background:rgba(0,207,255,0.08);border:1px solid rgba(0,207,255,0.2);color:var(--cyan)}
+.badge-rf{background:rgba(0,255,157,0.07);border:1px solid rgba(0,255,157,0.2);color:var(--neon)}
+.badge-isc{background:rgba(150,150,200,0.08);border:1px solid rgba(150,150,200,0.2);color:#aab}
+
+/* CONTACT */
+#contact{border-top:1px solid var(--border)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.ccard{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:1.3rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:all 0.22s}
+.ccard:hover{border-color:var(--neon);transform:translateY(-2px)}
+.cicon{width:40px;height:40px;border-radius:4px;background:rgba(0,255,157,0.06);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:1rem;flex-shrink:0;color:var(--neon)}
+.cinfo .clabel{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);letter-spacing:0.2em;text-transform:uppercase}
+.cinfo .cval{font-size:0.9rem;color:#fff;margin-top:0.15rem}
+.ccta{grid-column:1/-1;border:1px solid rgba(0,255,157,0.2);border-radius:6px;padding:2rem;text-align:center;background:rgba(0,255,157,0.02)}
+.ccta p{color:var(--text-dim);margin-bottom:1.2rem;font-size:0.93rem}
+
+/* FOOTER */
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2rem 2.5rem;max-width:1020px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.fl{font-family:var(--mono);font-size:0.65rem;color:var(--text-dim)}.fl span{color:var(--neon)}
+.fr{font-family:var(--mono);font-size:0.65rem;color:var(--text-dim)}
+
+@media(max-width:720px){
+  nav{padding:1rem 1.2rem}
+  .nav-links{display:none}
+  section{padding:3.5rem 1.3rem}
+  .about-grid,.skills-grid,.cert-grid,.contact-grid{grid-template-columns:1fr}
+  .cert-grid{grid-template-columns:repeat(2,1fr)}
+  footer{flex-direction:column;gap:0.5rem;text-align:center}
+}
+@media(max-width:480px){
+  .cert-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo"><span>~/</span>anton-marinov</div>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#skills">skills</a></li>
+    <li><a href="#experience">experience</a></li>
+    <li><a href="#certifications">certs</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+  <div class="nav-status"><div class="status-dot"></div>amusnet · sofia</div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-eyebrow">[ <em>PROFILE INITIALIZED</em> · Bulgaria · Cybersecurity ]</div>
+  <h1 class="hero-name glitch" data-text="Anton Marinov">Anton Marinov</h1>
+  <div class="hero-role">&gt; Cyber Defense Specialist_</div>
+  <p class="hero-sub">
+    Defending digital infrastructure at <strong>Amusnet</strong>. Former Senior SOC Analyst with 4+ years at Nexo and a stack of <strong>12 industry certifications</strong> in forensics, threat intelligence, and offensive security.
+  </p>
+  <div class="terminal">
+    <div class="term-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div></div>
+    <div class="term-line"><span class="p">$</span> <span class="c" id="typeTarget"></span></div>
+    <div class="term-line" id="termOut"><span id="termResult" style="color:var(--text-dim)"></span></div>
+  </div>
+  <div class="cta-row">
+    <a href="#contact" class="btn btn-p">// get in touch</a>
+    <a href="https://www.linkedin.com/in/anton-marinov-44875b6a/" target="_blank" class="btn btn-g">// linkedin</a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-label">01 // about</div>
+  <h2 class="sec-title">Who I Am</h2>
+  <div class="sec-div"></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>
+        I'm a <strong>Cyber Defense Specialist at Amusnet</strong>, bringing 4+ years of SOC experience from Nexo — one of Europe's largest crypto platforms. My work spans threat detection, incident response, digital forensics, and threat intelligence.
+      </p>
+      <p>
+        What makes my path unusual: I spent 13 years in aviation operations at <strong>Swissport</strong> before pivoting fully into cybersecurity. That background gave me something textbooks can't — composure under pressure, precise communication, and the instinct to track down things that go missing.
+      </p>
+      <p>
+        Since entering the field in 2022, I've earned <strong>12 certifications</strong> across forensics, threat intelligence, cloud security, penetration testing, and OSINT — staying sharp in a field that never stops moving.
+      </p>
+    </div>
+    <div class="about-cards">
+      <div class="acard">
+        <div class="acard-label">Current role</div>
+        <div class="acard-val">Cyber Defense Specialist</div>
+      </div>
+      <div class="acard">
+        <div class="acard-label">Company</div>
+        <div class="acard-val">Amusnet · Full-time</div>
+      </div>
+      <div class="acard">
+        <div class="acard-label">Location</div>
+        <div class="acard-val">Sofia, Bulgaria</div>
+      </div>
+      <div class="acard">
+        <div class="acard-label">Certifications</div>
+        <div class="acard-val">12 active / industry-recognized</div>
+      </div>
+      <div class="acard">
+        <div class="acard-label">Status</div>
+        <div class="acard-val online">● Active · Open to opportunities</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="sec-label">02 // skills</div>
+  <h2 class="sec-title">Capabilities</h2>
+  <div class="sec-div"></div>
+  <div class="skills-grid">
+    <div class="scat">
+      <h3>// SOC & Incident Response</h3>
+      <div class="tags">
+        <span class="tag h">Threat Detection</span>
+        <span class="tag h">Incident Response</span>
+        <span class="tag h">Alert Triage</span>
+        <span class="tag">SIEM</span>
+        <span class="tag">SOC Playbooks</span>
+        <span class="tag">Log Analysis</span>
+        <span class="tag">Security Audits</span>
+      </div>
+    </div>
+    <div class="scat">
+      <h3>// Intelligence & Forensics</h3>
+      <div class="tags">
+        <span class="tag h">Digital Forensics (CHFI)</span>
+        <span class="tag h">Cyber Threat Intelligence</span>
+        <span class="tag h">OSINT</span>
+        <span class="tag">Recorded Future</span>
+        <span class="tag">Attack Surface Analysis</span>
+        <span class="tag">CTI Reporting</span>
+      </div>
+    </div>
+    <div class="scat">
+      <h3>// Offensive Knowledge</h3>
+      <div class="tags">
+        <span class="tag h">Web App Assessment</span>
+        <span class="tag h">Network Penetration Testing</span>
+        <span class="tag">Vulnerability Assessment</span>
+        <span class="tag">OffSec Methodology</span>
+        <span class="tag">Attack Simulation</span>
+      </div>
+    </div>
+    <div class="scat">
+      <h3>// Cloud & Emerging Tech</h3>
+      <div class="tags">
+        <span class="tag h">Cloud Computing Security</span>
+        <span class="tag h">Blockchain Security</span>
+        <span class="tag">Crypto Infrastructure</span>
+        <span class="tag">Cloud IAM</span>
+        <span class="tag">DHS Frameworks</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="sec-label">03 // experience</div>
+  <h2 class="sec-title">Career Timeline</h2>
+  <div class="sec-div"></div>
+  <div class="timeline">
+
+    <div class="tli active">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Jun 2025 — Present</div>
+      <div class="tl-role">Cyber Defense Specialist</div>
+      <div class="tl-company">// Amusnet · Full-time · Sofia, Bulgaria</div>
+      <div class="tl-desc">
+        Joined Amusnet's security team with a focus on proactive cyber defense, threat detection and incident response. Bringing 4+ years of SOC experience and a broad certification portfolio to a new challenge in the gaming and entertainment technology sector.
+      </div>
+      <div class="tl-tags">
+        <span class="tl-tag">Cyber Defense</span>
+        <span class="tl-tag">Threat Detection</span>
+        <span class="tl-tag">Incident Response</span>
+        <span class="tl-tag">Digital Forensics</span>
+      </div>
+    </div>
+
+    <div class="tli">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Mar 2025 — May 2025</div>
+      <div class="tl-role">Senior Security Operations Center Analyst</div>
+      <div class="tl-company">// Nexo · Full-time · Sofia, Bulgaria</div>
+      <div class="tl-desc">
+        Leading threat detection and incident response operations for one of Europe's largest crypto lending platforms. Escalated from SOC Analyst after three years of consistent performance. Responsible for advanced triage, threat hunting, and mentoring junior analysts.
+      </div>
+      <div class="tl-tags">
+        <span class="tl-tag">Threat Hunting</span>
+        <span class="tl-tag">Incident Response</span>
+        <span class="tl-tag">SIEM</span>
+        <span class="tl-tag">Digital Forensics</span>
+        <span class="tl-tag">CTI</span>
+      </div>
+    </div>
+
+    <div class="tli">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Apr 2022 — Mar 2025 · 3 yrs</div>
+      <div class="tl-role">SOC Analyst</div>
+      <div class="tl-company">// Nexo · Full-time · Sofia, Bulgaria</div>
+      <div class="tl-desc">
+        Monitored, detected and responded to security events across Nexo's infrastructure. Built and refined detection rules, participated in security audits, and developed expertise in threat intelligence and cloud security — earning 12 industry certifications during this period.
+      </div>
+      <div class="tl-tags">
+        <span class="tl-tag">Security Audits</span>
+        <span class="tl-tag">Alert Triage</span>
+        <span class="tl-tag">Cloud Security</span>
+        <span class="tl-tag">OSINT</span>
+        <span class="tl-tag">Log Analysis</span>
+      </div>
+    </div>
+
+    <div class="tli">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Mar 2021 — May 2021 · 3 mos</div>
+      <div class="tl-role">Data Collection Operator</div>
+      <div class="tl-company">// Modis · Full-time · Hungary</div>
+      <div class="tl-desc">
+        Short-term data operations role during career transition period, bridging from aviation operations toward the IT industry.
+      </div>
+    </div>
+
+    <div class="tli">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Feb 2008 — Mar 2021 · 13 yrs 2 mos</div>
+      <div class="tl-role">Lost & Found Specialist</div>
+      <div class="tl-company">// Swissport Bulgaria · Aviation Operations</div>
+      <div class="tl-desc">
+        Managed worldwide lost luggage tracking via specialized international software. Coordinated transport logistics, communicated directly with passengers, and processed documentation — building a decade-long foundation in high-pressure operations and precise record management.
+      </div>
+      <div class="tl-tags">
+        <span class="tl-tag">International Systems</span>
+        <span class="tl-tag">Operations</span>
+        <span class="tl-tag">Documentation</span>
+        <span class="tl-tag">Customer Relations</span>
+      </div>
+    </div>
+
+    <div class="tli">
+      <div class="tl-dot"></div>
+      <div class="tl-period">2006 — 2007 · 1 yr</div>
+      <div class="tl-role">Sales Supervisor</div>
+      <div class="tl-company">// Kimimpex LTD (2be) · Mobile Devices Retail</div>
+      <div class="tl-desc">
+        Supervised a team of mobile device sales representatives, set targets, assisted with front-desk sales, and managed operations via the Story warehouse management platform.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="sec-label">04 // certifications</div>
+  <h2 class="sec-title">Licenses & Certs</h2>
+  <div class="sec-div"></div>
+  <div class="cert-grid">
+
+    <div class="cert-card featured">
+      <div class="cert-issuer">EC-Council</div>
+      <div class="cert-name">Computer Hacking Forensic Investigator (CHFI)</div>
+      <div class="cert-date">Issued Nov 2024 · ID: ECC6045213798</div>
+      <span class="cert-badge badge-eccouncil">EC-COUNCIL</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">U.S. Dept. of Homeland Security</div>
+      <div class="cert-name">Cloud Computing Security</div>
+      <div class="cert-date">Issued Oct 2024</div>
+      <span class="cert-badge badge-dhs">DHS</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">Recorded Future</div>
+      <div class="cert-name">Intelligence Fundamentals</div>
+      <div class="cert-date">Issued Jul 2024</div>
+      <span class="cert-badge badge-rf">RECORDED FUTURE</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">EC-Council</div>
+      <div class="cert-name">Cybersecurity for Blockchain from Ground Up</div>
+      <div class="cert-date">Issued Mar 2024</div>
+      <span class="cert-badge badge-eccouncil">EC-COUNCIL</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">EC-Council</div>
+      <div class="cert-name">Applied Attack Surface Analysis & Reduction</div>
+      <div class="cert-date">Issued Jan 2024</div>
+      <span class="cert-badge badge-eccouncil">EC-COUNCIL</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">EC-Council</div>
+      <div class="cert-name">Digital Forensics Essentials (DFE)</div>
+      <div class="cert-date">Issued Jan 2024</div>
+      <span class="cert-badge badge-eccouncil">EC-COUNCIL</span>
+    </div>
+
+    <div class="cert-card featured">
+      <div class="cert-issuer">EC-Council</div>
+      <div class="cert-name">Certified Threat Intelligence Analyst (CTIA)</div>
+      <div class="cert-date">Issued Dec 2023 · Expires Dec 2026 · ID: ECC5620493817</div>
+      <span class="cert-badge badge-eccouncil">EC-COUNCIL</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">EC-Council</div>
+      <div class="cert-name">Advanced Open Source Intelligence & Privacy</div>
+      <div class="cert-date">Issued Dec 2023</div>
+      <span class="cert-badge badge-eccouncil">EC-COUNCIL</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">OffSec</div>
+      <div class="cert-name">Network Penetration Testing Essentials</div>
+      <div class="cert-date">Issued Apr 2023 · ID: 72366453</div>
+      <span class="cert-badge badge-offsec">OFFSEC</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">ISC2</div>
+      <div class="cert-name">(ISC)² Candidate</div>
+      <div class="cert-date">Issued Mar 2023</div>
+      <span class="cert-badge badge-isc">ISC²</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-issuer">OffSec</div>
+      <div class="cert-name">Web Application Assessment Essentials</div>
+      <div class="cert-date">Issued Mar 2023 · ID: 69037400</div>
+      <span class="cert-badge badge-offsec">OFFSEC</span>
+    </div>
+
+    <div class="cert-card featured">
+      <div class="cert-issuer">OffSec</div>
+      <div class="cert-name">Security Operations Center — SOC-100</div>
+      <div class="cert-date">Issued Feb 2023 · ID: 68216688</div>
+      <span class="cert-badge badge-offsec">OFFSEC</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sec-label">05 // contact</div>
+  <h2 class="sec-title">Get In Touch</h2>
+  <div class="sec-div"></div>
+  <div class="contact-grid">
+    <a href="mailto:a.s.marinov@gmail.com" class="ccard">
+      <div class="cicon">✉</div>
+      <div class="cinfo">
+        <div class="clabel">Email</div>
+        <div class="cval">a.s.marinov@gmail.com</div>
+      </div>
+    </a>
+    <a href="https://www.linkedin.com/in/anton-marinov-44875b6a/" target="_blank" class="ccard">
+      <div class="cicon">in</div>
+      <div class="cinfo">
+        <div class="clabel">LinkedIn</div>
+        <div class="cval">anton-marinov-44875b6a</div>
+      </div>
+    </a>
+    <a href="https://github.com/AntonSMarinov" target="_blank" class="ccard">
+      <div class="cicon">&lt;/&gt;</div>
+      <div class="cinfo">
+        <div class="clabel">GitHub</div>
+        <div class="cval">github.com/AntonSMarinov</div>
+      </div>
+    </a>
+    <a href="#" class="ccard">
+      <div class="cicon">📍</div>
+      <div class="cinfo">
+        <div class="clabel">Location</div>
+        <div class="cval">Sofia, Bulgaria</div>
+      </div>
+    </a>
+    <div class="ccta">
+      <p>Looking for a <strong>Cyber Defense Specialist</strong> or want to discuss threat intelligence, incident response, or digital forensics?</p>
+      <a href="mailto:a.s.marinov@gmail.com" class="btn btn-p">// send a message</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fl">© 2025 <span>Anton Marinov</span> · Cyber Defense Specialist · Amusnet</div>
+  <div class="fr">Sofia, Bulgaria</div>
+</footer>
+
+<script>
+(function(){
+  const c=document.getElementById('matrix-canvas');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const chars='アイウエオカキクケコ01アBCDEFGHI#$%&@!?><';
+  const fs=12;
+  let drops=[];
+  function init(){drops=Array(Math.floor(c.width/fs)).fill(1)}
+  init();window.addEventListener('resize',init);
+  setInterval(()=>{
+    ctx.fillStyle='rgba(6,10,10,0.06)';ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#00ff9d';ctx.font=fs+'px monospace';
+    drops.forEach((y,i)=>{
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*fs,y*fs);
+      if(y*fs>c.height&&Math.random()>0.975)drops[i]=0;
+      drops[i]++;
+    });
+  },55);
+})();
+
+(function(){
+  const lines=[
+    {cmd:'whoami',out:'anton.marinov // cyber-defense-specialist @ amusnet'},
+    {cmd:'cat certs.txt',out:'12 certifications · CHFI · CTIA · OffSec · DHS'},
+    {cmd:'ls ./experience/',out:'nexo/  swissport/  modis/  kimimpex/'},
+    {cmd:'ping --target threats',out:'monitoring... 0 undetected. staying sharp.'},
+  ];
+  let li=0,ci=0,phase='type';
+  const tgt=document.getElementById('typeTarget');
+  const outDiv=document.getElementById('termOut');
+  const outSpan=document.getElementById('termResult');
+  tgt.classList.add('cursor');
+  function tick(){
+    const l=lines[li%lines.length];
+    if(phase==='type'){
+      if(ci<=l.cmd.length){tgt.textContent=l.cmd.slice(0,ci);ci++;setTimeout(tick,65);}
+      else{phase='show';tgt.classList.remove('cursor');setTimeout(tick,350);}
+    }else if(phase==='show'){
+      outDiv.style.display='block';outSpan.textContent=l.out;phase='wait';setTimeout(tick,2400);
+    }else{
+      outDiv.style.display='none';li++;ci=0;phase='type';tgt.classList.add('cursor');setTimeout(tick,250);
+    }
+  }
+  setTimeout(tick,900);
+})();
+</script>
+</body>
+</html>
